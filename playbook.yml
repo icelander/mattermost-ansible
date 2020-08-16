@@ -1,0 +1,10 @@
+---
+- hosts: 
+  tasks:
+    - name: Update apt repositories
+      yum: pkg=ntp state=latest
+      notify:
+      - restart ntpd
+  handlers:
+    - name: restart ntpd
+      service: name=ntpd state=restated

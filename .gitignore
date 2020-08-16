@@ -16,3 +16,6 @@ hosts
 nginx_hosts
 mattermost_archives
 db_config.json
+
+vendor
+mattermost-ansible

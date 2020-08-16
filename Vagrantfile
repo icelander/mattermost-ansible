@@ -1,4 +1,4 @@
-MATTERMOST_VERSION = '5.16.0'
+MATTERMOST_VERSION = '5.22.3'
 
 MYSQL_ROOT_PASSWORD = 'mysql_root_passowrd'
 MATTERMOST_PASSWORD = 'really_secure_password'
