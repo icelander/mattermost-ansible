@@ -1,0 +1,107 @@
+---
+- name: Install jq
+  package: name=jq state=latest
+
+- name: Download Mattermost EE Archive
+  when: (mattermost_enterprise_edition == true)
+  get_url:
+    url: https://releases.mattermost.com/{{ mattermost_version }}/mattermost-{{ mattermost_version }}-linux-amd64.tar.gz
+    dest: /tmp/
+
+- name: Download Mattermost TE Archive
+  when: (mattermost_enterprise_edition == false)
+  get_url: 
+    url: https://releases.mattermost.com/{{ mattermost_version }}/mattermost-team-{{ mattermost_version }}-linux-amd64.tar.gz
+    dest: /tmp/
+  
+
+- name: Unpack Mattermost EE Archive
+  when: (mattermost_enterprise_edition == true)
+  args:
+    creates: /opt/mattermost/bin/mattermost
+  unarchive: 
+    src: /tmp/mattermost-{{ mattermost_version }}-linux-amd64.tar.gz 
+    dest: /opt/
+    remote_src: yes
+  
+
+- name: Unpack Mattermost TE Archive
+  when: (mattermost_enterprise_edition == false)
+  args:
+    creates: /opt/mattermost/bin/mattermost
+  unarchive: 
+    src: /tmp/mattermost-team-{{ mattermost_version }}-linux-amd64.tar.gz 
+    dest: /opt/
+    remote_src: yes
+
+- name: Rename config.json
+  become: true
+  copy:
+    src: /opt/mattermost/config/config.json
+    dest: /opt/mattermost/config/config.orig.json
+    remote_src: yes
+
+- name: Create Configuration stub
+  become: true
+  template:
+    src: config.json.j2
+    dest: /opt/mattermost/config/config.stub.json
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Merge with config.json using jq
+  become: true
+  shell: jq -s '.[0] * .[1]' /opt/mattermost/config/config.orig.json /opt/mattermost/config/config.stub.json > /opt/mattermost/config/config.json
+
+# - name: Put Config in database
+#   hosts: app_server[0]
+
+# - name: Create mattermost.environment file w/ DB credentials
+
+- name: Create mattermost SystemV init script (Ubuntu 14.04)
+  template:
+    src: init_script_ubuntu.j2
+    dest: /etc/init.d/mattermost
+    owner: root
+    group: root
+    mode: 0755
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "14")  
+
+- name: Create mattermost upstart init script (RHEL/CentOS 6)
+  template:
+    src: mattermost.conf.j2
+    dest: /etc/init/mattermost.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: (ansible_os_family == "RedHat" and ansible_distribution_major_version == "6")  
+
+- name: Create mattermost systemd service (Ubuntu 16.04, RHEL/CentOS 7)
+  template:
+    src: mattermost.service.j2
+    dest: /etc/systemd/system/mattermost.service
+    owner: root
+    group: root
+    mode: 0664
+  when: (ansible_os_family  == "RedHat" and ansible_distribution_major_version == "7") or (ansible_distribution == "Ubuntu" and ansible_distribution_major_version >= "16") or (ansible_distribution == "Debian" and ansible_distribution_major_version == "8")
+
+- name: Create mattermost user
+  user: 
+    name: "{{ mattermost_user }}"
+    system: yes
+    createhome: no
+
+- name: Change mattermost directory permissions
+  file:
+    path: /opt/mattermost
+    state: directory
+    owner: "{{ mattermost_user }}"
+    group: "{{ mattermost_user }}"
+    recurse: yes
+
+- name: Enable Mattermost service
+  service:
+    name: mattermost
+    enabled: yes
+    state: started

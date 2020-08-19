@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Install epel-release
+      package: name=epel-release state=latest
+      when: (ansible_os_family == "RedHat")
+
+- hosts: load_balancer
+  become: true
+
+  handlers:
+    - name: restart haproxy
+      systemd:
+        name: haproxy
+        state: restarted
+
+  tasks:
+    - name: Display all variables/facts known for a host
+      debug:
+        var: groups['app_server']
+    - name: Install haproxy
+      package: name=haproxy state=latest
+    - name: Copy haproxy configuration file
+      vars:
+        mattermost_nodes: "{{ groups['app_server'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+      notify: restart haproxy
+    - name: Start haproxy
+      systemd:
+        name: haproxy
+        state: started
+        enabled: true
+
+- hosts: database
+  vars_files: 
+    - group_vars/database.yml
+  roles:
+    - role: geerlingguy.mysql
+      become: yes
+
+- hosts: app_server
+  become: true
+
+  vars_files: 
+    - group_vars/mattermost.yml
+  roles:
+    - role: mattermost
+      become: true

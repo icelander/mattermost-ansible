@@ -1,0 +1,41 @@
+{
+  "ServiceSettings": {
+    "SiteURL": "http://mattermost.sncorp.com/",
+    "LicenseFileLocation": "/opt/mattermost/license.txt"
+  },
+  "TeamSettings": {
+    "SiteName": "Ansible: CentOS - MySQL"
+  },
+  "SqlSettings": {
+    "DriverName": "mysql",
+    "DataSource": "{{ mattermost_db_user }}:{{ mattermost_db_password }}@tcp({{ main_db_ip_address }}:3306)/{{ mattermost_db_name }}?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s",
+    "DataSourceReplicas": [],
+    "DataSourceSearchReplicas": [],
+    "MaxIdleConns": 20,
+    "ConnMaxLifetimeMilliseconds": 3600000,
+    "MaxOpenConns": 300,
+    "Trace": false,
+    "AtRestEncryptKey": "",
+    "QueryTimeout": 30
+  },
+  "LogSettings": {
+    "EnableConsole": true,
+    "ConsoleLevel": "DEBUG",
+    "ConsoleJson": false,
+    "EnableFile": true,
+    "FileLevel": "DEBUG",
+    "FileJson": false,
+    "FileLocation": "",
+    "EnableWebhookDebugging": true,
+    "EnableDiagnostics": true
+  },
+  "PasswordSettings": {
+      "MinimumLength": 5,
+      "Lowercase": false,
+      "Number": false,
+      "Uppercase": false,
+      "Symbol": false
+  }
+}
+
+

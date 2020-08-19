@@ -1,0 +1,17 @@
+---
+mysql_user_password: mysql_root_password
+
+mysql_databases: 
+  - name: mattermost
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+# Users.
+mysql_users:
+  - name: mmuser
+    host: "%"
+    password: really_secure_password
+    priv: "mattermost.*:ALL"
+
+# Config instructions here: https://severalnines.com/database-blog/introduction-mysql-deployment-using-ansible-role
+# Full Options Available Here: https://raw.githubusercontent.com/geerlingguy/ansible-role-mysql/master/defaults/main.yml

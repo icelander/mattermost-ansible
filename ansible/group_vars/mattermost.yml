@@ -1,0 +1,8 @@
+---
+mattermost_version: 5.22.3
+mattermost_enterprise_edition: true
+mattermost_user: mattermost
+mattermost_db_user: mmuser
+mattermost_db_name: mattermost
+mattermost_db_password: really_secure_password
+main_db_ip_address: "192.168.33.99"

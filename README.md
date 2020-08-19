@@ -6,15 +6,9 @@ Setting up a Mattermost server is cumbersome so you want to automate it with Ans
 
 ## Solution
 
-### Installation
+Automate the deployment of your Mattermost servers with Ansible. This code is included in `ansible/roles/mattermost`. The file `group_vars/mattermost.yml` holds the configuration variables.
 
-1. Set up your hosts
-2. Run this command
+## To Do
 
-### Minor Upgrade
-
-### Major Upgrade
-
-## Discussion
-
-Ansible is a great solution for storing your architecture as documentation. This repo shows how to use it with Vagrant, which lets you set up test environments in virtual machines. This lets you deploy applications like Mattermost at any scale without a lot of mucking about with shell commands.
+1. Get HAProxy configuration working
+2. Handle Mattermost upgrade
